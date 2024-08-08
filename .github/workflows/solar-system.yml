@@ -41,4 +41,35 @@ jobs:
           with:
             name: Mocha-Test-Result
             path: test-results.xml
+    code-coverage:
+        name: Unit Testing
+        strategy:
+            matrix:
+                nodejs_version: [18, 19, 20]
+                operating_system: [ubuntu-latest, macos-latest]
+                exclude:
+                    - nodejs_version: 18
+                      operating_system: macos-latest
+        runs-on: ${{ matrix.operating_system}}
+        steps:
+        - name: checkout
+          uses: actions/checkout@v4
         
+        - name: Setup NodeJS - ${{ matrix.operating_system}}
+          uses: actions/setup-node@v3
+          with:
+            node-version: ${{ matrix.nodejs_version}}
+        
+        - name: Install Dependencies
+          run: npm install
+        
+        - name: unit testing
+          run: npm run coverage
+
+        - name: Archive Test result
+          uses: actions/upload-artifact@v3
+          with:
+            name: code-coverage-result
+            path: coverage
+            retention-days: 5
+
